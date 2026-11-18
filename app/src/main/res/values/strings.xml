@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bloom</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_habits">Habits</string>
+    <string name="nav_progress">Progress</string>
+    <string name="nav_goals">Goals</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="action_back">Back</string>
+
+    <string name="home_title">Today</string>
+    <string name="home_body">Bloom is built in milestones. Habits and today\'s progress arrive next (M4–M5).</string>
+    <string name="habits_body">Your habit library will live here: schedules, categories and history.</string>
+    <string name="progress_body">Completion rates and streaks will live here, counted only on days a habit was actually scheduled.</string>
+    <string name="goals_body">Goals linked to your habits will live here, with honest progress.</string>
+    <string name="settings_body">Appearance, language, reminders and backup will live here.</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Window background matches the Compose light scheme's background so the
+         launch frame does not flash a different colour (plan.md §7). -->
+    <color name="bloom_background">#F8F5FC</color>
+    <color name="ic_launcher_background">#E9DDF8</color>
+</resources>

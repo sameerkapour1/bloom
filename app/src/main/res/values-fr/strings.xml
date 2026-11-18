@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_home">Accueil</string>
+    <string name="nav_habits">Habitudes</string>
+    <string name="nav_progress">Progrès</string>
+    <string name="nav_goals">Objectifs</string>
+
+    <string name="settings_title">Paramètres</string>
+    <string name="action_back">Retour</string>
+
+    <string name="home_title">Aujourd\'hui</string>
+    <string name="home_body">Bloom se construit par étapes. Les habitudes et le progrès du jour arrivent ensuite (M4–M5).</string>
+    <string name="habits_body">Votre bibliothèque d\'habitudes vivra ici : horaires, catégories et historique.</string>
+    <string name="progress_body">Les taux de réalisation et les séries vivront ici, comptés uniquement les jours où une habitude était réellement prévue.</string>
+    <string name="goals_body">Les objectifs liés à vos habitudes vivront ici, avec un progrès honnête.</string>
+    <string name="settings_body">Apparence, langue, rappels et sauvegarde vivront ici.</string>
+</resources>

@@ -1,0 +1,102 @@
+name: Android CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # The Gradle version is pinned here, not floating: AGP 9.5.0 requires 9.6.0.
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.6.0"
+
+      # plan.md §13.1/13.3: the image's Android SDK is a convenience, not an
+      # assumption. This step proves what is actually available before the build.
+      - name: Probe Android SDK
+        run: |
+          set -euo pipefail
+          echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-unset}"
+          if command -v sdkmanager >/dev/null 2>&1; then
+            sdkmanager --list_installed 2>/dev/null | head -40 || true
+          else
+            echo "sdkmanager is not on PATH"
+          fi
+          ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}/platforms" || true
+
+      - name: Unit tests, lint and debug APK
+        run: gradle --no-daemon --stacktrace lintDebug testDebugUnitTest assembleDebug
+
+      # Gate 1 — plan.md §5.1: the domain layer must stay pure Kotlin.
+      - name: "Gate: core/domain has no Android imports"
+        run: |
+          set -euo pipefail
+          DOMAIN=app/src/main/java/io/github/sameerkapour1/bloom/core/domain
+          if [ -d "$DOMAIN" ] && grep -rIn --include='*.kt' -E '^import android\.' "$DOMAIN"; then
+            echo "::error file=$DOMAIN::core/domain must not import Android classes (plan.md §5.1)"
+            exit 1
+          fi
+          echo "OK: core/domain is Android-free"
+
+      # Gate 2 — plan.md §10: no user-facing string literals in feature code.
+      - name: "Gate: no hardcoded UI strings"
+        run: |
+          set -euo pipefail
+          if grep -rIn --include='*.kt' -E 'Text\(\s*"' app/src/main/java/io/github/sameerkapour1/bloom/feature; then
+            echo "::error::Use stringResource(R.string...) instead of a literal (plan.md section 10)"
+            exit 1
+          fi
+          echo "OK: no literal UI strings in feature code"
+
+      # Gate 3 — plan.md §5.7: the merged manifest may not grow silently,
+      # and must never gain INTERNET.
+      - name: "Gate: merged manifest permissions match the allowlist"
+        run: |
+          set -euo pipefail
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          AAPT2=$(find "${ANDROID_HOME:?ANDROID_HOME is required}" -path '*/build-tools/*/aapt2' -type f | sort -V | tail -1)
+          echo "Using $AAPT2"
+          "$AAPT2" dump permissions "$APK" \
+            | grep -o 'android\.permission\.[A-Z_]*' \
+            | sort -u > /tmp/actual-permissions.txt || true
+          grep -v '^#' .github/allowed-permissions.txt | grep -v '^[[:space:]]*$' | sort -u > /tmp/allowed-permissions.txt
+          echo "--- permissions in the APK:"
+          cat /tmp/actual-permissions.txt
+          if grep -q 'android.permission.INTERNET' /tmp/actual-permissions.txt; then
+            echo "::error::INTERNET permission must never ship in Release 1 (plan.md §5.7)"
+            exit 1
+          fi
+          diff -u /tmp/allowed-permissions.txt /tmp/actual-permissions.txt
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: bloom-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+          if-no-files-found: error

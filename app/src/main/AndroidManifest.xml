@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      Release 1 declares only POST_NOTIFICATIONS (plan.md §5.7, §11).
+      androidx.work will merge WAKE_LOCK, ACCESS_NETWORK_STATE,
+      RECEIVE_BOOT_COMPLETED and FOREGROUND_SERVICE into the merged manifest
+      when reminders land in M7. There is deliberately no INTERNET permission:
+      CI asserts the merged permission list against .github/allowed-permissions.txt.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".BloomApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Bloom">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Bloom">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

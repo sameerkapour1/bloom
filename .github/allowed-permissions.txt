@@ -1,0 +1,10 @@
+# Merged-manifest permission allowlist for Bloom (plan.md §5.7, §11).
+#
+# CI extracts every permission from the built debug APK and diffs it against this
+# file. A new permission must be added here deliberately, with a reason written
+# next to it — it can never appear through a dependency bump unnoticed.
+#
+# There is deliberately no android.permission.INTERNET. Its absence is the privacy
+# guarantee that stops any library moving habit data off the device.
+
+android.permission.POST_NOTIFICATIONS
