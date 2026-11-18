@@ -4,6 +4,8 @@
 
 [versions]
 agp = "9.5.0"
+# Kotlin version for the Compose compiler plugin only. Kotlin compilation itself is
+# built into AGP 9, so no kotlin-android plugin is declared in [plugins].
 kotlin = "2.4.21"
 coreKtx = "1.19.1"
 lifecycle = "2.11.0"
@@ -36,5 +38,4 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

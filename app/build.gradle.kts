@@ -1,8 +1,8 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
+// AGP 9 compiles Kotlin itself (built-in Kotlin): applying org.jetbrains.kotlin.android
+// here is an error (https://developer.android.com/build/migrate-to-built-in-kotlin).
+// Only the Compose compiler plugin is still applied by the module.
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -29,6 +29,8 @@ android {
         }
     }
 
+    // Built-in Kotlin takes kotlin.compilerOptions.jvmTarget from targetCompatibility,
+    // so the JVM target is set here only.
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -36,12 +38,6 @@ android {
 
     buildFeatures {
         compose = true
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
