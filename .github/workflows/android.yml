@@ -39,23 +39,28 @@ jobs:
       # assumption. This step proves what is actually available before the build.
       - name: Probe Android SDK
         run: |
-          set -euo pipefail
           echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
-          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-unset}"
-          if command -v sdkmanager >/dev/null 2>&1; then
-            sdkmanager --list_installed 2>/dev/null | head -40 || true
-          else
-            echo "sdkmanager is not on PATH"
-          fi
-          ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}/platforms" || true
+          echo "platforms: $(ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}/platforms" 2>/dev/null | tr '\n' ' ')"
 
-      # Quiet Gradle keeps the job log short enough that a failure and its
-      # diagnosis are actually visible in the Actions log view.
-      - name: Unit tests, lint and debug APK
+      # The tasks run one per step on purpose: a failing step's own output is
+      # then the first thing in the log after setup, which is what a reader
+      # (or an agent) actually gets to see.
+      - name: Unit tests
+        run: gradle --no-daemon --quiet testDebugUnitTest
+
+      - name: Lint
         run: |
-          set -o pipefail
-          gradle --no-daemon --quiet --stacktrace lintDebug testDebugUnitTest assembleDebug 2>&1 \
-            | tail -n 150
+          if ! gradle --no-daemon lintDebug > "$RUNNER_TEMP/lint.log" 2>&1; then
+            echo "===== lint findings ====="
+            cat app/build/reports/lint-results-debug.txt 2>/dev/null || true
+            echo "===== gradle output (tail) ====="
+            tail -n 15 "$RUNNER_TEMP/lint.log" || true
+            exit 1
+          fi
+          echo "OK: lint clean"
+
+      - name: Assemble debug APK
+        run: gradle --no-daemon --quiet assembleDebug
 
       # Gate 1 — plan.md §5.1: the domain layer must stay pure Kotlin.
       - name: "Gate: core/domain has no Android imports"
