@@ -51,10 +51,11 @@ jobs:
       - name: Lint
         run: |
           if ! gradle --no-daemon lintDebug > "$RUNNER_TEMP/lint.log" 2>&1; then
-            echo "===== lint findings ====="
-            cat app/build/reports/lint-results-debug.txt 2>/dev/null || true
-            echo "===== gradle output (tail) ====="
-            tail -n 15 "$RUNNER_TEMP/lint.log" || true
+            REPORT=app/build/reports/lint-results-debug.txt
+            echo "===== lint errors ====="
+            grep -A 3 'Error:' "$REPORT" 2>/dev/null | head -80 || true
+            echo "===== lint summary ====="
+            tail -n 3 "$REPORT" 2>/dev/null || true
             exit 1
           fi
           echo "OK: lint clean"
