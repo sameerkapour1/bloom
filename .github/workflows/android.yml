@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -49,8 +49,13 @@ jobs:
           fi
           ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}/platforms" || true
 
+      # Quiet Gradle keeps the job log short enough that a failure and its
+      # diagnosis are actually visible in the Actions log view.
       - name: Unit tests, lint and debug APK
-        run: gradle --no-daemon --stacktrace lintDebug testDebugUnitTest assembleDebug
+        run: |
+          set -o pipefail
+          gradle --no-daemon --quiet --stacktrace lintDebug testDebugUnitTest assembleDebug 2>&1 \
+            | tail -n 150
 
       # Gate 1 — plan.md §5.1: the domain layer must stay pure Kotlin.
       - name: "Gate: core/domain has no Android imports"
