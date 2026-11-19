@@ -11,13 +11,15 @@ Grow at your own pace.
 | Milestone | State |
 |---|---|
 | M0 Discovery & decisions | ✅ done — see [`plan.md`](plan.md) |
-| **M1 Foundation & CI** | **in progress — this commit** |
-| M2 Data layer · M3 Domain core | next (in parallel) |
+| **M1 Foundation & CI** | ✅ done — [CI run 5](https://github.com/sameerkapour1/bloom/actions/runs/44301414840) builds `bloom-debug` |
+| M2 Data layer | next |
+| **M3 Domain core** | 🟡 model and the date, schedule, rate, streak, measurable and goal rules are implemented and unit-tested; locale formatting helpers are still open |
 | M4 Core habit flows | first genuinely usable app |
 | M5 Main experience · M6 Polish · M7 Reminders · M8 Release readiness | planned |
 
-The app currently renders the navigation shell with placeholder screens. It is not
-yet a habit tracker; `plan.md` §15 states what each milestone delivers.
+The app currently renders the navigation shell with placeholder screens. The shared
+model and the rules behind schedules, streaks and goals exist and are covered by JVM
+tests, but no screen reads them yet; `plan.md` §15 states what each milestone delivers.
 
 ## Build and install (from a phone)
 
@@ -35,7 +37,7 @@ APK is installed straight from the Actions run page.
 Every push to `main` and every pull request also runs three gates that fail the build
 rather than let a rule rot:
 
-- `core/domain` must not import Android classes (keeps business rules testable).
+- `core/domain` and `core/model` must not import Android classes (keeps business rules testable).
 - No hardcoded user-facing strings in feature code (all copy comes from `strings.xml`).
 - The merged manifest's permissions must match `.github/allowed-permissions.txt`, and
   `INTERNET` may never appear.
@@ -45,6 +47,9 @@ rather than let a rule rot:
 ```
 app/src/main/java/io/github/sameerkapour1/bloom/
 ├── core/designsystem/   colour, type, shape, spacing, motion tokens + theme
+├── core/model/          immutable domain types (habit, schedule, completion, goal)
+├── core/domain/         pure Kotlin rules: schedules, rates, streaks, measurable, goals
+├── core/common/         date helpers: epoch days, week starts, reminder instants
 ├── core/ui/             shared composables
 ├── navigation/          destinations and the NavHost
 └── feature/             home, habits, progress, goals, settings
@@ -55,8 +60,12 @@ plan.md                  the approved plan: scope, schema, domain rules, task li
 
 ## Testing
 
-- **JVM tests** (`gradle testDebugUnitTest`) run in CI on every push. They currently
-  contain the design-system contrast gate and, from M3, the date and streak rules.
+- **JVM tests** run in CI on every push: `gradle testDebugUnitTest` (Gradle 9.6.0).
+  The Gradle wrapper scripts are deliberately not committed — CI pins the version with
+  `gradle/actions/setup-gradle`, so use `gradle <task>` rather than `./gradlew`.
+  The suite covers the design-system contrast gate and the M3 rules: effective-dated
+  schedules, due and listed habits, completion-rate denominators, streak grace,
+  measurable target snapshots, goal progress, DST and locale week starts.
 - **Instrumented tests** run on an emulator job, not on pull requests. DAO and migration
   coverage is therefore a known gap, tracked as `BLOOM-M2-07` and risk R16 in `plan.md`.
 
