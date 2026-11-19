@@ -3,4 +3,6 @@ plugins {
     alias(libs.plugins.android.application) apply false
     // No kotlin-android: AGP 9 provides Kotlin support itself.
     alias(libs.plugins.kotlin.compose) apply false
+    // Room's annotation processor runs through KSP.
+    alias(libs.plugins.ksp) apply false
 }

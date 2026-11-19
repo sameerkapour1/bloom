@@ -7,6 +7,10 @@ agp = "9.5.0"
 # Kotlin version for the Compose compiler plugin only. Kotlin compilation itself is
 # built into AGP 9, so no kotlin-android plugin is declared in [plugins].
 kotlin = "2.4.21"
+# KSP is no longer tied to the Kotlin compiler version since 2.3.0; 2.3.12
+# supports KGP 2.3.20–2.4.x and AGP 9 built-in Kotlin.
+ksp = "2.3.12"
+room = "2.8.5"
 coreKtx = "1.19.1"
 lifecycle = "2.11.0"
 activityCompose = "1.13.0"
@@ -24,6 +28,9 @@ androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "l
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -39,3 +46,4 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
